@@ -83,6 +83,35 @@ def randomized_motif_search(dna: List, k: int, t: int):
             return best_motifs
 
 
+def profile_randomly_generated_kmer(text: str, k: int, profile: Dict):
+    patterns = []
+    weights = []
+    for i in range(0, len(text) - k + 1):
+        pattern = text[i: i + k]
+        prob = 1
+        for j in range(len(pattern)):
+            prob *= profile[pattern[j]][j]
+        patterns.append(pattern)
+        weights.append(prob)
+    kmer = random.choices(patterns, weights)[0]
+    return kmer
+
+
+def gibbs_sampler(dna: List, k: int, t: int, N: int):
+    random_int = [random.randint(0, len(dna[0]) - k) for i in range(len(dna))]
+    motifs = [dna[i][random_int[i]: random_int[i] + k] for i in range(len(random_int))]
+    best_motifs = motifs.copy()
+    for j in range(N):
+        i = random.randint(0, t - 1)
+        motifs.pop(i)
+        profile = form_profile_with_pseudocounts(motifs)
+        motifs.insert(i, profile_randomly_generated_kmer(dna[i], k, profile))
+        if score(motifs) < score(best_motifs):
+            best_motifs = motifs
+    return best_motifs
+
+
+
 if __name__ == '__main__':
     dna = [
         'CGCCCCTCTCGGGGGTGTTCAGTAAACGGCCA',
@@ -93,4 +122,11 @@ if __name__ == '__main__':
     ]
     k = 8
     t = 5
-    print(randomized_motif_search(dna, 8, 5))
+    best_score = 100
+    best_motif = ''
+    for start in range(20):
+        motifs = gibbs_sampler(dna, k, t, 100)
+        if score(motifs) < best_score:
+            best_score = score(motifs)
+            best_motif = motifs
+    print(best_motif)
