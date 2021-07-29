@@ -20,22 +20,25 @@ def path_to_genome(patterns: List):
 # construct the overlap graph of a collection of k-mers
 def overlap_graph(patterns: List):
     adj_list = {}
-    for p1 in patterns:
-        adj_list[p1] = []
-        for p2 in patterns:
-            if p1[1:] == p2[: -1]:
-                adj_list[p1].append(p2)
+    for i in range(len(patterns) - 1):
+        p1 = patterns[i]
+        p2 = patterns[i + 1]
+        if p1 not in adj_list.keys():
+            adj_list[p1] = []
+        if p1[1:] == p2[: -1]:
+            adj_list[p1].append(p2)
         if len(adj_list[p1]) == 0:
             adj_list.pop(p1)
     return adj_list
 
 
+def de_bruijin_graph(k: int, text: str):
+    composition = string_composition(k - 1, text)
+    return overlap_graph(composition)
+
 if __name__ == '__main__':
-    print(overlap_graph([
-        'ATGCG',
-        'GCATG',
-        'CATGC',
-        'AGGCA',
-        'GGCAT',
-        'GGCAC'
-    ]))
+
+    print(de_bruijin_graph(2, 'TAATGCCATGGGATGTT'))
+    print(de_bruijin_graph(3, 'TAATGCCATGGGATGTT'))
+    print(de_bruijin_graph(4, 'TAATGCCATGGGATGTT'))
+    print(de_bruijin_graph(3, 'TAATGGGATGCCATGTT'))
