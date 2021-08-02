@@ -36,9 +36,26 @@ def de_bruijin_graph(k: int, text: str):
     composition = string_composition(k - 1, text)
     return overlap_graph(composition)
 
+
+def de_bruijin_graph_from_kmer(patterns: List[str]):
+    adj_list = {}
+    for pattern in patterns:
+        prefix = pattern[: -1]
+        suffix = pattern[1:]
+        if prefix not in adj_list.keys():
+            adj_list[prefix] = []
+        adj_list[prefix].append(suffix)
+    return adj_list
+
 if __name__ == '__main__':
 
-    print(de_bruijin_graph(2, 'TAATGCCATGGGATGTT'))
-    print(de_bruijin_graph(3, 'TAATGCCATGGGATGTT'))
-    print(de_bruijin_graph(4, 'TAATGCCATGGGATGTT'))
-    print(de_bruijin_graph(3, 'TAATGGGATGCCATGTT'))
+    print(de_bruijin_graph_from_kmer([
+        'GAGG',
+        'CAGG',
+        'GGGG',
+        'GGGA',
+        'CAGG',
+        'AGGG',
+        'GGAG'
+    ]))
+
